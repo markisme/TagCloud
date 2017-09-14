@@ -1,0 +1,101 @@
+{
+    "rules": {
+        "adjacent-overload-signatures": true,
+        "member-ordering": [
+            true,
+            {
+                "order": "fields-first"
+            }
+        ],
+        "prefer-for-of": true,
+        "ban": [
+            false,
+            [
+                "eval"
+            ]
+        ],
+        "no-eval": true,
+        "curly": true,
+        "no-arg": true,
+        "no-use-before-declare": true,
+        "no-var-keyword": true,
+        "switch-default": true,
+        "use-isnan": true,
+        "indent": [
+            true,
+            "spaces"
+        ],
+        "linebreak-style": [
+            true,
+            "LF"
+        ],
+        "arrow-parens": true,
+        "class-name": true,
+        "comment-format": [
+            true,
+            "check-space"
+        ],
+        "new-parens": true,
+        "variable-name": [
+            true,
+            "ban-keywords"
+        ],
+        "no-duplicate-variable": true,
+        "semicolon": [
+            true,
+            "always"
+        ],
+        "typedef-whitespace": [
+            true,
+            {
+                "call-signature": "nospace",
+                "index-signature": "nospace",
+                "parameter": "nospace",
+                "property-declaration": "nospace",
+                "variable-declaration": "nospace"
+            }
+        ],
+        "whitespace": [
+            true,
+            "check-branch",
+            "check-decl",
+            "check-operator",
+            "check-separator",
+            "check-type"
+        ],
+        "directive-selector": [
+            false,
+            "attribute",
+            [
+                "pip",
+                "pipj"
+            ],
+            "camelCase"
+        ],
+        "component-selector": [
+            false,
+            "element",
+            [
+                "pip",
+                "pipj"
+            ],
+            "kebab-case"
+        ],
+        
+        "use-input-property-decorator": true,
+        "use-output-property-decorator": true,
+        "use-host-property-decorator": true,
+        "no-attribute-parameter-decorator": true,
+        "no-input-rename": true,
+        "no-output-rename": true,
+        "no-forward-ref": true,
+        "use-life-cycle-interface": true,
+        "use-pipe-transform-interface": true,
+        "component-class-suffix": true,
+        "directive-class-suffix": true,
+        "import-destructuring-spacing": true,
+        "templates-use-public": true,
+        "no-access-missing-member": true,
+        "invoke-injectable": true
+    }
+}

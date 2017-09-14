@@ -1,0 +1,25 @@
+{
+  "name": "tagcloud",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "tagcloud",
+    "d3",
+    "d3-cloud"
+  ],
+  "author": "Guangzhao Ma",
+  "license": "ISC",
+  "dependencies": {
+    "d3": "^4.10.2",
+    "d3-cloud": "^1.2.4"
+  },
+  "devDependencies": {
+    "@types/d3": "^4.10.0",
+    "@types/node": "^8.0.28"
+  }
+}
