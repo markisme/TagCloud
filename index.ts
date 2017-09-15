@@ -30,10 +30,10 @@ export interface Word {
 }
 
 export interface Options {
-    orientation: string;
-    minFontSize: number;
-    maxFontSize: number;
-    scale: string;
+    orientation?: string;
+    minFontSize?: number;
+    maxFontSize?: number;
+    scale?: string;
     seedColors?: string[];
     showEase?: (normalizedTime: number) => number;
 }
@@ -102,10 +102,18 @@ export class TagCloud extends EventEmitter {
             return;
         }
         this._optionsAsString = JSON.stringify(options);
-        this._orientation = options.orientation;
-        this._minFontSize = Math.min(options.minFontSize, options.maxFontSize);
-        this._maxFontSize = Math.max(options.minFontSize, options.maxFontSize);
-        this._textScale = options.scale;
+        if (options.orientation) {
+            this._orientation = options.orientation;
+        }
+        if (options.minFontSize) {
+            this._minFontSize = options.maxFontSize ? Math.min(options.minFontSize, options.maxFontSize) : options.minFontSize;
+        }
+        if (options.maxFontSize) {
+            this._maxFontSize = options.minFontSize ? Math.max(options.minFontSize, options.maxFontSize) : options.maxFontSize;
+        }
+        if (options.scale) {
+            this._textScale = options.scale;
+        }
         if (options.seedColors) {
             this._seedColor = options.seedColors;
         }

@@ -11,10 +11,10 @@ export interface Word {
     text: string;
 }
 export interface Options {
-    orientation: string;
-    minFontSize: number;
-    maxFontSize: number;
-    scale: string;
+    orientation?: string;
+    minFontSize?: number;
+    maxFontSize?: number;
+    scale?: string;
     seedColors?: string[];
     showEase?: (normalizedTime: number) => number;
 }
