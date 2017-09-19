@@ -27,6 +27,8 @@ export interface Job {
 export interface Word {
     value: any;
     text: string;
+    link?: string;
+    target?: string;
 }
 
 export interface Options {
@@ -144,7 +146,7 @@ export class TagCloud extends EventEmitter {
     }
 
     setData(data: any[]) {
-        this._words = data.map(toWordTag);
+        this._words = data;
         this._invalidate(false);
     }
 
@@ -217,7 +219,6 @@ export class TagCloud extends EventEmitter {
         });
     }
 
-
     _emptyDOM() {
         this._svgGroup.selectAll('text').remove();
         this._cloudWidth = 0;
@@ -243,7 +244,11 @@ export class TagCloud extends EventEmitter {
         await new Promise((resolve, reject) => {
 
             let enterSelection = stage.enter();
-            let enteringTags = enterSelection.append('text');
+            let aTags = enterSelection.append('a');
+            aTags.attr('xlink:href', (tag: any) => tag.link);
+            aTags.attr('target', (tag: any) => tag.target);
+
+            let enteringTags = aTags.append('text');
             enteringTags.style('font-size', getSizeInPixels);
             enteringTags.style('font-style', this._fontStyle);
             enteringTags.style('font-weight', () => this._fontWeight);
@@ -323,7 +328,7 @@ export class TagCloud extends EventEmitter {
         return {
             refreshLayout: true,
             size: this._size.slice(),
-            words: this._words.map(toWordTag)
+            words: this._words
         };
     }
 
@@ -337,7 +342,9 @@ export class TagCloud extends EventEmitter {
                     y: tag.y,
                     rotate: tag.rotate,
                     size: tag.size,
-                    text: tag.text
+                    text: tag.text,
+                    link: tag.link,
+                    target: tag.target
                 };
             })
         };
@@ -389,10 +396,6 @@ export class TagCloud extends EventEmitter {
 
 function seed() {
     return 0.5; // constant seed (not random) to ensure constant layouts for identical data
-}
-
-function toWordTag(word: Word) {
-    return { value: word.value, text: word.text };
 }
 
 function getText(word: Word) {

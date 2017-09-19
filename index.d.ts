@@ -9,6 +9,8 @@ export interface Job {
 export interface Word {
     value: any;
     text: string;
+    link?: string;
+    target?: string;
 }
 export interface Options {
     orientation?: string;

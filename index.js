@@ -139,7 +139,7 @@ var TagCloud = (function (_super) {
         }
     };
     TagCloud.prototype.setData = function (data) {
-        this._words = data.map(toWordTag);
+        this._words = data;
         this._invalidate(false);
     };
     TagCloud.prototype.destroy = function () {
@@ -255,7 +255,10 @@ var TagCloud = (function (_super) {
                         stage = svgTextNodes.data(job.words, getText);
                         return [4 /*yield*/, new Promise(function (resolve, reject) {
                                 var enterSelection = stage.enter();
-                                var enteringTags = enterSelection.append('text');
+                                var aTags = enterSelection.append('a');
+                                aTags.attr('xlink:href', function (tag) { return tag.link; });
+                                aTags.attr('target', function (tag) { return tag.target; });
+                                var enteringTags = aTags.append('text');
                                 enteringTags.style('font-size', getSizeInPixels);
                                 enteringTags.style('font-style', _this._fontStyle);
                                 enteringTags.style('font-weight', function () { return _this._fontWeight; });
@@ -332,7 +335,7 @@ var TagCloud = (function (_super) {
         return {
             refreshLayout: true,
             size: this._size.slice(),
-            words: this._words.map(toWordTag)
+            words: this._words
         };
     };
     TagCloud.prototype._makeJobPreservingLayout = function () {
@@ -345,7 +348,9 @@ var TagCloud = (function (_super) {
                     y: tag.y,
                     rotate: tag.rotate,
                     size: tag.size,
-                    text: tag.text
+                    text: tag.text,
+                    link: tag.link,
+                    target: tag.target
                 };
             })
         };
@@ -400,9 +405,6 @@ var TagCloud = (function (_super) {
 exports.TagCloud = TagCloud;
 function seed() {
     return 0.5; // constant seed (not random) to ensure constant layouts for identical data
-}
-function toWordTag(word) {
-    return { value: word.value, text: word.text };
 }
 function getText(word) {
     return word.text;
