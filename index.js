@@ -86,7 +86,8 @@ var TagCloud = (function (_super) {
         _this._maxFontSize = 36;
         _this._textScale = 'log';
         _this._seedColor = ['#00a69b', '#57c17b', '#6f87d8', '#663db8', '#bc52bc', '#9e3533', '#daa05d'];
-        _this._showEase = d3.easeBounceOut;
+        _this._showEase = d3.easeQuadIn;
+        _this._showDuration = 800;
         _this._allInViewBox = false;
         _this._DOMisUpdating = false;
         // DOM
@@ -268,8 +269,8 @@ var TagCloud = (function (_super) {
                                 enteringTags.attr('transform', "translate(" + _this._element.offsetWidth / 2 + ", " + _this._element.offsetHeight / 2 + ")rotate(0)");
                                 enteringTags.text(getText);
                                 var enteringTransition = enteringTags.transition();
-                                enteringTransition.duration(1500);
-                                enteringTransition.ease(d3.easeBounceOut);
+                                enteringTransition.duration(_this._showDuration);
+                                enteringTransition.ease(_this._showEase);
                                 enteringTransition.attr('transform', affineTransform);
                                 enteringTags.on('click', function (event) {
                                     _this.emit('select', event);

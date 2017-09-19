@@ -38,6 +38,7 @@ export interface Options {
     scale?: string;
     seedColors?: string[];
     showEase?: (normalizedTime: number) => number;
+    showDuration?: number;
 }
 
 export enum STATUS {
@@ -68,7 +69,8 @@ export class TagCloud extends EventEmitter {
     _textScale: string = 'log';
     _optionsAsString: string;
     _seedColor: string[] = ['#00a69b', '#57c17b', '#6f87d8', '#663db8', '#bc52bc', '#9e3533', '#daa05d'];
-    _showEase: (normalizedTime: number) => number = d3.easeBounceOut;
+    _showEase: (normalizedTime: number) => number = d3.easeQuadIn;
+    _showDuration: number = 800;
 
     // DATA
     _words: any;
@@ -259,8 +261,8 @@ export class TagCloud extends EventEmitter {
             enteringTags.text(getText);
 
             let enteringTransition = enteringTags.transition();
-            enteringTransition.duration(1500);
-            enteringTransition.ease(d3.easeBounceOut);
+            enteringTransition.duration(this._showDuration);
+            enteringTransition.ease(this._showEase);
             enteringTransition.attr('transform', affineTransform);
 
             enteringTags.on('click', (event: any) => {

@@ -19,6 +19,7 @@ export interface Options {
     scale?: string;
     seedColors?: string[];
     showEase?: (normalizedTime: number) => number;
+    showDuration?: number;
 }
 export declare enum STATUS {
     COMPLETE = 0,
@@ -42,6 +43,7 @@ export declare class TagCloud extends EventEmitter {
     _optionsAsString: string;
     _seedColor: string[];
     _showEase: (normalizedTime: number) => number;
+    _showDuration: number;
     _words: any;
     _setTimeoutId: any;
     _completedJob?: Job;
