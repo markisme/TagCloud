@@ -13,8 +13,8 @@
     "d3",
     "d3-cloud"
   ],
-  "author": "Guangzhao Ma",
-  "license": "ISC",
+  "author": "Mark Ma",
+  "license": "MIT",
   "dependencies": {
     "d3": "^4.10.2",
     "d3-cloud": "^1.2.4"
