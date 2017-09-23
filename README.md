@@ -48,6 +48,7 @@ tagCloud.setData(newTags);
 
 ## Built With
 
+* [d3](https://github.com/d3/d3) - Bring data to life with SVG, Canvas and HTML. 
 * [d3-cloud](https://github.com/jasondavies/d3-cloud) - Create word clouds in JavaScript.
 
 ## Contributing

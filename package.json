@@ -8,6 +8,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc-watch": "tsc -w -p ."
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/markisme/TagCloud.git"
+  },
   "keywords": [
     "tagcloud",
     "d3",
