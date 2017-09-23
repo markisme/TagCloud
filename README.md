@@ -22,7 +22,7 @@ npm install d3-tagcloud
 Basic Usage:
 
 ```
-import { Word, TagCloud, Options } from "tagcloud";
+import { Word, TagCloud, Options } from "d3-tagcloud";
 
 
 let tagCloud = new TagCloud(theHTMlElement);
