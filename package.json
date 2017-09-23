@@ -1,5 +1,5 @@
 {
-  "name": "tagcloud",
+  "name": "d3-tagcloud",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

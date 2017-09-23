@@ -16,7 +16,7 @@ npm install -g typescript
 ### Installing
 
 ```
-npm install tagcloud
+npm install d3-tagcloud
 ```
 ### Usage
 Basic Usage:
