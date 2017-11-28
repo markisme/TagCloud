@@ -18,7 +18,9 @@ npm install -g typescript
 ```
 npm install d3-tagcloud
 ```
+
 ### Usage
+
 Basic Usage:
 
 ```
@@ -45,6 +47,16 @@ tagCloud.resize();
 
 tagCloud.setData(newTags);
 ```
+## Example
+
+```
+git clone https://github.com/markisme/TagCloud.git
+cd TagCloud
+cd example
+npm install
+npm start
+```
+Then open in browser `http://localhost:4200`
 
 ## Built With
 
