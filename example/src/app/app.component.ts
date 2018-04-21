@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit,HostListener } from '@angular/core';
 import { TagCloud, Word, Options } from "d3-tagcloud";
 
 @Component({
@@ -13,52 +13,17 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.tagCloud = new TagCloud(this.cloudEle.nativeElement);
     let options: Options = {
-      orientation: 'multiple' //  default is 'right angled','single','right angled','multiple'
+      orientation: 'right angled' //  default is 'right angled','single','right angled','multiple'
     }
     this.tagCloud.setOptions(options);
-    let tags: Word[] = [
-      { value: Math.ceil(Math.random() * 20), text: 'Word1' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word2' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word3' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word4' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word5' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word1' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word1' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word1' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word1' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word1' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word1' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word1' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word2' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word3' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word4' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word5' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word2' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word3' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word4' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word5' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word2' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word3' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word4' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word5' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word2' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word3' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word4' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word5' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word2' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word3' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word4' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word5' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word2' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word3' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word4' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word5' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word2' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word3' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word4' },
-      { value: Math.ceil(Math.random() * 20), text: 'Word5' },
-    ];
+    let tags: Word[] = []
+    for (let i = 0; i < 100; i++) {
+      tags.push({ value: ~~(Math.random() * 10000)/100, text: 'Test Word' + i })
+    }
     this.tagCloud.setData(tags);
   }
-
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    this.tagCloud.resize();
+  }
 }

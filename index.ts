@@ -164,8 +164,6 @@ export class TagCloud extends EventEmitter {
     _updateContainerSize() {
         this._d3SvgContainer.attr('width', this._size[0]);
         this._d3SvgContainer.attr('height', this._size[1]);
-        this._svgGroup.attr('width', this._size[0]);
-        this._svgGroup.attr('height', this._size[1]);
     }
 
     _isJobRunning() {
@@ -182,7 +180,6 @@ export class TagCloud extends EventEmitter {
             return;
         }
 
-
         this._completedJob = undefined;
         let job = await this._pickPendingJob();
         if (job.words.length) {
@@ -190,7 +187,7 @@ export class TagCloud extends EventEmitter {
                 await this._updateLayout(job);
             }
             await this._updateDOM(job);
-            let cloudBBox = this._svgGroup[0][0].getBBox();
+            let cloudBBox = (<SVGSVGElement>this._svgGroup.node()!).getBBox();
             this._cloudWidth = cloudBBox.width;
             this._cloudHeight = cloudBBox.height;
             this._allInViewBox = cloudBBox.x >= 0 &&
@@ -211,13 +208,13 @@ export class TagCloud extends EventEmitter {
     }
 
     async _pickPendingJob() {
-        return await new Promise<Job>((resolve, reject) => {
-            this._setTimeoutId = setTimeout(async () => {
-                let job = this._pendingJob;
-                this._pendingJob = undefined;
-                this._setTimeoutId = null;
-                resolve(job);
-            }, 0);
+        return new Promise<Job>((resolve, reject) => {
+            // this._setTimeoutId = setTimeout(async () => {
+            let job = this._pendingJob;
+            this._pendingJob = undefined;
+            // this._setTimeoutId = null;
+            resolve(job);
+            // }, 0);
         });
     }
 
@@ -230,7 +227,6 @@ export class TagCloud extends EventEmitter {
     }
 
     async _updateDOM(job: Job) {
-
         let canSkipDomUpdate = this._pendingJob || this._setTimeoutId;
         if (canSkipDomUpdate) {
             this._DOMisUpdating = false;
@@ -239,80 +235,98 @@ export class TagCloud extends EventEmitter {
 
         this._colorScale = d3.scaleOrdinal(this._seedColor);
         this._DOMisUpdating = true;
-        let affineTransform = positionWord.bind(null, this._element.offsetWidth / 2, this._element.offsetHeight / 2);
         let svgTextNodes = this._svgGroup.selectAll('text');
         let stage = svgTextNodes.data(job.words, getText);
+        let xTranslate: number = this._element.offsetWidth / 2;
+        let yTranslate: number = this._element.offsetHeight / 2;
+        function positionWord(word: any) {
+            if (isNaN(word.x) || isNaN(word.y) || isNaN(word.rotate)) {
+                // move off-screen
+                return `translate(${xTranslate * 3}, ${yTranslate * 3})rotate(0)`;
+            }
+            return `translate(${word.x + xTranslate}, ${word.y + yTranslate}) rotate(${word.rotate})`;
+        }
 
-        await new Promise((resolve, reject) => {
+        let enterSelection = stage.enter();
+        let aTags = enterSelection.append('a');
+        aTags.attr('xlink:href', (tag: any) => tag.link);
+        aTags.attr('target', (tag: any) => tag.target);
 
-            let enterSelection = stage.enter();
-            let aTags = enterSelection.append('a');
-            aTags.attr('xlink:href', (tag: any) => tag.link);
-            aTags.attr('target', (tag: any) => tag.target);
+        let enteringTags = aTags.append('text');
+        enteringTags.style('font-style', this._fontStyle);
+        enteringTags.style('fill', (tag: any) => this._colorScale(tag.text));
+        enteringTags.attr('text-anchor', () => 'middle');
+        enteringTags.style('font-family', () => this._fontFamily);
+        enteringTags.attr('transform', `translate(${this._element.offsetWidth / 2}, ${this._element.offsetHeight / 2})rotate(0)`);
+        enteringTags.text(getText);
 
-            let enteringTags = aTags.append('text');
-            enteringTags.style('font-size', getSizeInPixels);
-            enteringTags.style('font-style', this._fontStyle);
-            enteringTags.style('font-weight', () => this._fontWeight);
-            enteringTags.style('font-family', () => this._fontFamily);
-            enteringTags.style('fill', (tag: any) => this._colorScale(tag.text));
-            enteringTags.attr('text-anchor', () => 'middle');
-            enteringTags.attr('transform', `translate(${this._element.offsetWidth / 2}, ${this._element.offsetHeight / 2})rotate(0)`);
-            enteringTags.text(getText);
+        enteringTags.on('click', (event: any) => {
+            this.emit('select', event);
+        });
+        let self = this;
+        enteringTags.on('mouseover', function (event: any) {
+            d3.select(this).style('cursor', 'pointer');
+            self.emit('mouseover', this);
+        });
 
-            let enteringTransition = enteringTags.transition();
-            enteringTransition.duration(this._showDuration);
-            enteringTransition.ease(this._showEase);
-            enteringTransition.attr('transform', affineTransform);
+        enteringTags.on('mouseout', function (event: any) {
+            d3.select(this).style('cursor', 'default');
+            self.emit('mouseout', this);
+        });
 
-            enteringTags.on('click', (event: any) => {
-                this.emit('select', event);
-            });
-            let self = this;
-            enteringTags.on('mouseover', function (event: any) {
-                d3.select(this).style('cursor', 'pointer');
-                self.emit('mouseover', this);
-            });
+        let enteringTransition = enteringTags.transition();
+        enteringTransition.duration(this._showDuration);
+        enteringTransition.ease(this._showEase);
+        enteringTransition.attr('transform', positionWord);
+        enteringTransition.style('font-size', getSizeInPixels);
+        enteringTransition.style('font-weight', () => this._fontWeight);
 
-            enteringTags.on('mouseout', function (event: any) {
-                d3.select(this).style('cursor', 'default');
-                self.emit('mouseout', this);
-            });
+        let movingTransition = stage.transition();
+        movingTransition.duration(1000);
+        movingTransition.style('font-size', getSizeInPixels);
+        movingTransition.style('font-style', this._fontStyle);
+        movingTransition.style('font-weight', () => this._fontWeight);
+        movingTransition.attr('transform', positionWord);
 
-            let movingTags = stage.transition();
-            movingTags.duration(1000);
-            movingTags.style('font-size', getSizeInPixels);
-            movingTags.style('font-style', this._fontStyle);
-            movingTags.style('font-weight', () => this._fontWeight);
-            movingTags.style('font-family', () => this._fontFamily);
-            movingTags.attr('transform', affineTransform);
-
-            let exitingTags = stage.exit();
-            let exitTransition = exitingTags.transition();
-            exitTransition.duration(200);
-            exitingTags.style('fill-opacity', 1e-6);
-            exitingTags.attr('font-size', 1);
-            exitingTags.remove();
-
+        let exitingTags = stage.exit();
+        let exitTransition = exitingTags.transition();
+        exitTransition.duration(200);
+        exitTransition.style('fill-opacity', 1e-6);
+        exitTransition.attr('font-size', 1);
+        exitingTags.remove();
+        return new Promise((resolve, reject) => {
             let exits = 0;
             let moves = 0;
+            let enters = 0;
             let resolveWhenDone = () => {
-                if (exits === 0 && moves === 0) {
+                if (exits === 0 && moves === 0 && enters == 0) {
                     this._DOMisUpdating = false;
                     resolve(true);
                 }
             };
-            exitTransition.each(() => exits++);
+            exitTransition.each(() => {
+                exits++;
+            });
             exitTransition.on('end', () => {
+                console.log('end one exits', exits);
                 exits--;
                 resolveWhenDone();
             });
-            movingTags.each(() => moves++);
-            movingTags.on('end', () => {
+            exitTransition.on('interrupt', () => {
+                console.log('interrupt one', exits);
+                exits--;
+                resolveWhenDone();
+            });
+            movingTransition.each(() => moves++);
+            movingTransition.on('end', () => {
                 moves--;
                 resolveWhenDone();
             });
-
+            enteringTransition.each(() => enters++);
+            enteringTransition.on('end', () => {
+                enters--;
+                resolveWhenDone();
+            });
         });
     }
 
@@ -357,7 +371,6 @@ export class TagCloud extends EventEmitter {
         if (!this._words) {
             return;
         }
-
         this._updateContainerSize();
 
         let canReuseLayout = keepLayout && !this._isJobRunning() && this._completedJob;
@@ -367,7 +380,6 @@ export class TagCloud extends EventEmitter {
 
 
     async _updateLayout(job: Job) {
-
         let mapSizeToFontSize = this._makeTextSizeMapper();
         let tagCloudLayoutGenerator = d3Cloud();
         tagCloudLayoutGenerator.size(job.size);
@@ -384,7 +396,7 @@ export class TagCloud extends EventEmitter {
         tagCloudLayoutGenerator.timeInterval(this._timeInterval);
 
         this._layoutIsUpdating = true;
-        await new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             tagCloudLayoutGenerator.on('end', () => {
                 this._layoutIsUpdating = false;
                 resolve(true);
@@ -402,15 +414,6 @@ function seed() {
 
 function getText(word: Word) {
     return word.text;
-}
-
-function positionWord(xTranslate: number, yTranslate: number, word: any) {
-    if (isNaN(word.x) || isNaN(word.y) || isNaN(word.rotate)) {
-        // move off-screen
-        return `translate(${xTranslate * 3}, ${yTranslate * 3})rotate(0)`;
-    }
-
-    return `translate(${word.x + xTranslate}, ${word.y + yTranslate})rotate(${word.rotate})`;
 }
 
 function getValue(tag: any) {

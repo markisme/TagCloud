@@ -65,10 +65,10 @@ export declare class TagCloud extends EventEmitter {
     _processPendingJob(): Promise<void>;
     _pickPendingJob(): Promise<Job>;
     _emptyDOM(): void;
-    _updateDOM(job: Job): Promise<void>;
+    _updateDOM(job: Job): Promise<{} | undefined>;
     _makeTextSizeMapper(): any;
     _makeNewJob(): Job;
     _makeJobPreservingLayout(): Job;
     _invalidate(keepLayout: boolean): void;
-    _updateLayout(job: Job): Promise<void>;
+    _updateLayout(job: Job): Promise<{}>;
 }

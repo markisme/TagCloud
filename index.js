@@ -153,8 +153,6 @@ var TagCloud = (function (_super) {
     TagCloud.prototype._updateContainerSize = function () {
         this._d3SvgContainer.attr('width', this._size[0]);
         this._d3SvgContainer.attr('height', this._size[1]);
-        this._svgGroup.attr('width', this._size[0]);
-        this._svgGroup.attr('height', this._size[1]);
     };
     TagCloud.prototype._isJobRunning = function () {
         return (this._setTimeoutId || this._layoutIsUpdating || this._DOMisUpdating);
@@ -184,7 +182,7 @@ var TagCloud = (function (_super) {
                     case 3: return [4 /*yield*/, this._updateDOM(job)];
                     case 4:
                         _a.sent();
-                        cloudBBox = this._svgGroup[0][0].getBBox();
+                        cloudBBox = this._svgGroup.node().getBBox();
                         this._cloudWidth = cloudBBox.width;
                         this._cloudHeight = cloudBBox.height;
                         this._allInViewBox = cloudBBox.x >= 0 &&
@@ -212,21 +210,14 @@ var TagCloud = (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, new Promise(function (resolve, reject) {
-                            _this._setTimeoutId = setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
-                                var job;
-                                return __generator(this, function (_a) {
-                                    job = this._pendingJob;
-                                    this._pendingJob = undefined;
-                                    this._setTimeoutId = null;
-                                    resolve(job);
-                                    return [2 /*return*/];
-                                });
-                            }); }, 0);
-                        })];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        // this._setTimeoutId = setTimeout(async () => {
+                        var job = _this._pendingJob;
+                        _this._pendingJob = undefined;
+                        // this._setTimeoutId = null;
+                        resolve(job);
+                        // }, 0);
+                    })];
             });
         });
     };
@@ -240,86 +231,101 @@ var TagCloud = (function (_super) {
     TagCloud.prototype._updateDOM = function (job) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
-            var canSkipDomUpdate, affineTransform, svgTextNodes, stage;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        canSkipDomUpdate = this._pendingJob || this._setTimeoutId;
-                        if (canSkipDomUpdate) {
-                            this._DOMisUpdating = false;
-                            return [2 /*return*/];
-                        }
-                        this._colorScale = d3.scaleOrdinal(this._seedColor);
-                        this._DOMisUpdating = true;
-                        affineTransform = positionWord.bind(null, this._element.offsetWidth / 2, this._element.offsetHeight / 2);
-                        svgTextNodes = this._svgGroup.selectAll('text');
-                        stage = svgTextNodes.data(job.words, getText);
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                var enterSelection = stage.enter();
-                                var aTags = enterSelection.append('a');
-                                aTags.attr('xlink:href', function (tag) { return tag.link; });
-                                aTags.attr('target', function (tag) { return tag.target; });
-                                var enteringTags = aTags.append('text');
-                                enteringTags.style('font-size', getSizeInPixels);
-                                enteringTags.style('font-style', _this._fontStyle);
-                                enteringTags.style('font-weight', function () { return _this._fontWeight; });
-                                enteringTags.style('font-family', function () { return _this._fontFamily; });
-                                enteringTags.style('fill', function (tag) { return _this._colorScale(tag.text); });
-                                enteringTags.attr('text-anchor', function () { return 'middle'; });
-                                enteringTags.attr('transform', "translate(" + _this._element.offsetWidth / 2 + ", " + _this._element.offsetHeight / 2 + ")rotate(0)");
-                                enteringTags.text(getText);
-                                var enteringTransition = enteringTags.transition();
-                                enteringTransition.duration(_this._showDuration);
-                                enteringTransition.ease(_this._showEase);
-                                enteringTransition.attr('transform', affineTransform);
-                                enteringTags.on('click', function (event) {
-                                    _this.emit('select', event);
-                                });
-                                var self = _this;
-                                enteringTags.on('mouseover', function (event) {
-                                    d3.select(this).style('cursor', 'pointer');
-                                    self.emit('mouseover', this);
-                                });
-                                enteringTags.on('mouseout', function (event) {
-                                    d3.select(this).style('cursor', 'default');
-                                    self.emit('mouseout', this);
-                                });
-                                var movingTags = stage.transition();
-                                movingTags.duration(1000);
-                                movingTags.style('font-size', getSizeInPixels);
-                                movingTags.style('font-style', _this._fontStyle);
-                                movingTags.style('font-weight', function () { return _this._fontWeight; });
-                                movingTags.style('font-family', function () { return _this._fontFamily; });
-                                movingTags.attr('transform', affineTransform);
-                                var exitingTags = stage.exit();
-                                var exitTransition = exitingTags.transition();
-                                exitTransition.duration(200);
-                                exitingTags.style('fill-opacity', 1e-6);
-                                exitingTags.attr('font-size', 1);
-                                exitingTags.remove();
-                                var exits = 0;
-                                var moves = 0;
-                                var resolveWhenDone = function () {
-                                    if (exits === 0 && moves === 0) {
-                                        _this._DOMisUpdating = false;
-                                        resolve(true);
-                                    }
-                                };
-                                exitTransition.each(function () { return exits++; });
-                                exitTransition.on('end', function () {
-                                    exits--;
-                                    resolveWhenDone();
-                                });
-                                movingTags.each(function () { return moves++; });
-                                movingTags.on('end', function () {
-                                    moves--;
-                                    resolveWhenDone();
-                                });
-                            })];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
+            function positionWord(word) {
+                if (isNaN(word.x) || isNaN(word.y) || isNaN(word.rotate)) {
+                    // move off-screen
+                    return "translate(" + xTranslate * 3 + ", " + yTranslate * 3 + ")rotate(0)";
                 }
+                return "translate(" + (word.x + xTranslate) + ", " + (word.y + yTranslate) + ") rotate(" + word.rotate + ")";
+            }
+            var canSkipDomUpdate, svgTextNodes, stage, xTranslate, yTranslate, enterSelection, aTags, enteringTags, self, enteringTransition, movingTransition, exitingTags, exitTransition;
+            return __generator(this, function (_a) {
+                canSkipDomUpdate = this._pendingJob || this._setTimeoutId;
+                if (canSkipDomUpdate) {
+                    this._DOMisUpdating = false;
+                    return [2 /*return*/];
+                }
+                this._colorScale = d3.scaleOrdinal(this._seedColor);
+                this._DOMisUpdating = true;
+                svgTextNodes = this._svgGroup.selectAll('text');
+                stage = svgTextNodes.data(job.words, getText);
+                xTranslate = this._element.offsetWidth / 2;
+                yTranslate = this._element.offsetHeight / 2;
+                enterSelection = stage.enter();
+                aTags = enterSelection.append('a');
+                aTags.attr('xlink:href', function (tag) { return tag.link; });
+                aTags.attr('target', function (tag) { return tag.target; });
+                enteringTags = aTags.append('text');
+                enteringTags.style('font-style', this._fontStyle);
+                enteringTags.style('fill', function (tag) { return _this._colorScale(tag.text); });
+                enteringTags.attr('text-anchor', function () { return 'middle'; });
+                enteringTags.style('font-family', function () { return _this._fontFamily; });
+                enteringTags.attr('transform', "translate(" + this._element.offsetWidth / 2 + ", " + this._element.offsetHeight / 2 + ")rotate(0)");
+                enteringTags.text(getText);
+                enteringTags.on('click', function (event) {
+                    _this.emit('select', event);
+                });
+                self = this;
+                enteringTags.on('mouseover', function (event) {
+                    d3.select(this).style('cursor', 'pointer');
+                    self.emit('mouseover', this);
+                });
+                enteringTags.on('mouseout', function (event) {
+                    d3.select(this).style('cursor', 'default');
+                    self.emit('mouseout', this);
+                });
+                enteringTransition = enteringTags.transition();
+                enteringTransition.duration(this._showDuration);
+                enteringTransition.ease(this._showEase);
+                enteringTransition.attr('transform', positionWord);
+                enteringTransition.style('font-size', getSizeInPixels);
+                enteringTransition.style('font-weight', function () { return _this._fontWeight; });
+                movingTransition = stage.transition();
+                movingTransition.duration(1000);
+                movingTransition.style('font-size', getSizeInPixels);
+                movingTransition.style('font-style', this._fontStyle);
+                movingTransition.style('font-weight', function () { return _this._fontWeight; });
+                movingTransition.attr('transform', positionWord);
+                exitingTags = stage.exit();
+                exitTransition = exitingTags.transition();
+                exitTransition.duration(200);
+                exitTransition.style('fill-opacity', 1e-6);
+                exitTransition.attr('font-size', 1);
+                exitingTags.remove();
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        var exits = 0;
+                        var moves = 0;
+                        var enters = 0;
+                        var resolveWhenDone = function () {
+                            if (exits === 0 && moves === 0 && enters == 0) {
+                                _this._DOMisUpdating = false;
+                                resolve(true);
+                            }
+                        };
+                        exitTransition.each(function () {
+                            exits++;
+                        });
+                        exitTransition.on('end', function () {
+                            console.log('end one exits', exits);
+                            exits--;
+                            resolveWhenDone();
+                        });
+                        exitTransition.on('interrupt', function () {
+                            console.log('interrupt one', exits);
+                            exits--;
+                            resolveWhenDone();
+                        });
+                        movingTransition.each(function () { return moves++; });
+                        movingTransition.on('end', function () {
+                            moves--;
+                            resolveWhenDone();
+                        });
+                        enteringTransition.each(function () { return enters++; });
+                        enteringTransition.on('end', function () {
+                            enters--;
+                            resolveWhenDone();
+                        });
+                    })];
             });
         });
     };
@@ -370,34 +376,28 @@ var TagCloud = (function (_super) {
             var _this = this;
             var mapSizeToFontSize, tagCloudLayoutGenerator;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        mapSizeToFontSize = this._makeTextSizeMapper();
-                        tagCloudLayoutGenerator = d3Cloud();
-                        tagCloudLayoutGenerator.size(job.size);
-                        tagCloudLayoutGenerator.padding(this._padding);
-                        tagCloudLayoutGenerator.rotate(ORIENTATIONS[this._orientation]);
-                        tagCloudLayoutGenerator.font(this._fontFamily);
-                        tagCloudLayoutGenerator.fontStyle(this._fontStyle);
-                        tagCloudLayoutGenerator.fontWeight(this._fontWeight);
-                        tagCloudLayoutGenerator.fontSize(function (tag) { return mapSizeToFontSize(tag.value); });
-                        tagCloudLayoutGenerator.random(seed);
-                        tagCloudLayoutGenerator.spiral(this._spiral);
-                        tagCloudLayoutGenerator.words(job.words);
-                        tagCloudLayoutGenerator.text(getText);
-                        tagCloudLayoutGenerator.timeInterval(this._timeInterval);
-                        this._layoutIsUpdating = true;
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                tagCloudLayoutGenerator.on('end', function () {
-                                    _this._layoutIsUpdating = false;
-                                    resolve(true);
-                                });
-                                tagCloudLayoutGenerator.start();
-                            })];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
+                mapSizeToFontSize = this._makeTextSizeMapper();
+                tagCloudLayoutGenerator = d3Cloud();
+                tagCloudLayoutGenerator.size(job.size);
+                tagCloudLayoutGenerator.padding(this._padding);
+                tagCloudLayoutGenerator.rotate(ORIENTATIONS[this._orientation]);
+                tagCloudLayoutGenerator.font(this._fontFamily);
+                tagCloudLayoutGenerator.fontStyle(this._fontStyle);
+                tagCloudLayoutGenerator.fontWeight(this._fontWeight);
+                tagCloudLayoutGenerator.fontSize(function (tag) { return mapSizeToFontSize(tag.value); });
+                tagCloudLayoutGenerator.random(seed);
+                tagCloudLayoutGenerator.spiral(this._spiral);
+                tagCloudLayoutGenerator.words(job.words);
+                tagCloudLayoutGenerator.text(getText);
+                tagCloudLayoutGenerator.timeInterval(this._timeInterval);
+                this._layoutIsUpdating = true;
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        tagCloudLayoutGenerator.on('end', function () {
+                            _this._layoutIsUpdating = false;
+                            resolve(true);
+                        });
+                        tagCloudLayoutGenerator.start();
+                    })];
             });
         });
     };
@@ -409,13 +409,6 @@ function seed() {
 }
 function getText(word) {
     return word.text;
-}
-function positionWord(xTranslate, yTranslate, word) {
-    if (isNaN(word.x) || isNaN(word.y) || isNaN(word.rotate)) {
-        // move off-screen
-        return "translate(" + xTranslate * 3 + ", " + yTranslate * 3 + ")rotate(0)";
-    }
-    return "translate(" + (word.x + xTranslate) + ", " + (word.y + yTranslate) + ")rotate(" + word.rotate + ")";
 }
 function getValue(tag) {
     return tag.value;
